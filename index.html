@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator OS — Game + Radio Control System</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial;
+  background:#0b0f1a;
+  color:#fff;
+}
+
+header{
+  padding:16px;
+  background:#151b2d;
+  text-align:center;
+  font-weight:bold;
+}
+
+.container{
+  padding:14px;
+  max-width:900px;
+  margin:auto;
+}
+
+.section{
+  margin-bottom:18px;
+  padding:12px;
+  border:1px solid #2a3558;
+  border-radius:12px;
+  background:#141a2c;
+}
+
+.title{
+  font-weight:bold;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.card{
+  background:#0f1424;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  border:1px solid #263155;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  color:#b5c0ff;
+}
+
+button{
+  width:100%;
+  margin-top:6px;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.primary{ background:#00d4ff; }
+.warn{ background:#ffcc00; }
+.danger{ background:#ff4d4d; }
+
+.tag{
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:11px;
+}
+
+.green{ background:#1f9d55; }
+.yellow{ background:#d9a404; }
+.red{ background:#d64545; }
+
+.small{
+  font-size:12px;
+  color:#9aa7d6;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+🧠 CREATOR OS — RADIO • GAMES • FUNNEL CONTROL
+</header>
+
+<div class="container">
+
+<!-- RADIO HUB -->
+<div class="section">
+  <div class="title">
+    📡 RADIO HUB
+    <span id="radio-status" class="tag red">OFFLINE</span>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span>Radiomeltdown</span>
+      <span id="radio-clicks">Clicks: 0</span>
+    </div>
+    <button class="primary" onclick="openRadio()">Open Live Radio</button>
+    <button class="warn" onclick="toggleRadio()">Toggle Status</button>
+  </div>
+</div>
+
+<!-- GAME HUB -->
+<div class="section">
+  <div class="title">🎮 GAME HUB</div>
+
+  <div class="card">
+    <div class="row">
+      <span>Snake</span>
+      <span id="snake-status">LIVE</span>
+    </div>
+    <button class="primary" onclick="openGame('https://fairefaretravels.github.io/Snake/')">
+      Open Snake
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span>Bartender Rush</span>
+      <span>IN PROGRESS</span>
+    </div>
+    <button class="primary" onclick="openGame('#')">
+      Open Build
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span>2048</span>
+      <span>NOT STARTED</span>
+    </div>
+    <button class="primary" onclick="openGame('#')">
+      Open Repo
+    </button>
+  </div>
+</div>
+
+<!-- FUNNEL HUB -->
+<div class="section">
+  <div class="title">💰 FUNNEL HUB</div>
+
+  <div class="card">
+    <div class="row">
+      <span>Total Leads</span>
+      <span id="leads">0</span>
+    </div>
+
+    <div class="row">
+      <span>High Score Leads</span>
+      <span id="high-leads">0</span>
+    </div>
+
+    <button class="warn" onclick="exportData()">Export Data</button>
+    <button class="danger" onclick="resetAll()">Reset System</button>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="section">
+  <div class="title">📊 ANALYTICS</div>
+
+  <div class="card small">
+    This is a local-first OS. All tracking is stored in browser memory until you connect a backend (Firebase / Supabase / MailerLite).
+  </div>
+</div>
+
+</div>
+
+<script>
+
+const STATE_KEY = "creator_os_v1";
+
+let state = load();
+
+function load(){
+  return JSON.parse(localStorage.getItem(STATE_KEY) || JSON.stringify({
+    radioClicks:0,
+    radioLive:false,
+    leads:0,
+    highLeads:0
+  }));
+}
+
+function save(){
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  render();
+}
+
+/* RADIO */
+function openRadio(){
+  state.radioClicks++;
+  save();
+  window.open("https://Radiomeltdown.store","_blank");
+}
+
+function toggleRadio(){
+  state.radioLive = !state.radioLive;
+  save();
+}
+
+function updateRadioUI(){
+  document.getElementById("radio-status").innerText =
+    state.radioLive ? "LIVE" : "OFFLINE";
+
+  document.getElementById("radio-status").className =
+    "tag " + (state.radioLive ? "green" : "red");
+
+  document.getElementById("radio-clicks").innerText =
+    "Clicks: " + state.radioClicks;
+}
+
+/* GAME */
+function openGame(url){
+  window.open(url,"_blank");
+}
+
+/* FUNNEL */
+function addLead(score){
+  state.leads++;
+  if(score > 100) state.highLeads++;
+  save();
+}
+
+/* EXPORT */
+function exportData(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "creator-os-data.json";
+  a.click();
+}
+
+/* RESET */
+function resetAll(){
+  if(confirm("Reset all OS data?")){
+    localStorage.removeItem(STATE_KEY);
+    state = load();
+    render();
+  }
+}
+
+/* RENDER LOOP */
+function render(){
+  updateRadioUI();
+  document.getElementById("leads").innerText = state.leads;
+  document.getElementById("high-leads").innerText = state.highLeads;
+}
+
+render();
+
+</script>
+
+</body>
+</html>
